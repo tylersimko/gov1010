@@ -41,8 +41,12 @@ one_sample <- function(x) {
 }
 
 many_samples <- function(n) {
-    res <- lapply(1:n, one_sample)
-    unlist(res)
+    if (n > 0) { 
+        res <- lapply(1:n, one_sample)
+        unlist(res)
+    } else {
+        return(NULL)
+    }
 }
 
 # Define UI for application that draws a histogram
@@ -268,8 +272,14 @@ server <- function(input, output) {
     
     output$unbiasedPlot <- renderPlot({
         
+        req(input$unbiased_n_samples)
+        
         true_avg <- round(mean(students$courses), 2)
         vals <- many_samples(input$unbiased_n_samples)
+        
+        if (is.null(vals)) {
+            vals <- 0
+        }
         
         vals <- vals %>% 
             as_tibble()
