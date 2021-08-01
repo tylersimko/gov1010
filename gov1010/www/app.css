@@ -1,11 +1,19 @@
 
 #app_title {
-  font-size: 50px;
+  font-size: 60px;
   text-align :center;
+  font-family: 'Alegreya Sans SC', sans-serif;
+  font-face: bold;
 }
 
 p {
   font-size: 22px;
+}
+
+.smallcaps {
+    font-family: 'Alegreya Sans SC', sans-serif;
+    font-size: 40px;
+    font-face: bold;
 }
 
 .control-label {

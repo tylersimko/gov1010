@@ -49,6 +49,10 @@ many_samples <- function(n) {
 ui <- fluidPage(theme = shinytheme("united"),
                 
     tags$head(includeCSS("www/app.css")),
+    tags$link(
+        rel = "stylesheet", 
+        href="https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@500&display=swap"
+    ),
                 
     # Application title
     titlePanel(tags$div(id='app_title',
@@ -81,7 +85,7 @@ ui <- fluidPage(theme = shinytheme("united"),
     fluidRow(column(10, offset = 1,
                     br(),
         wellPanel(
-            h1("Our first random sample"),
+            h1("Our first random sample", class = "smallcaps"),
             p("Big news -- disaster has struck and ",
               em("my.harvard"),
               "is down during course selection for the spring
@@ -172,7 +176,8 @@ ui <- fluidPage(theme = shinytheme("united"),
                             plotOutput("samplePlot",
                                        width = "600px", height = "600px"))),
             br(),
-            h3("Unbiasedness - random samples converge to the truth"),
+            h1("Unbiasedness - many random samples converge to the truth", 
+               class = "smallcaps"),
             p("How do we know that a random sample will give us
               a good estimate of the population mean? 
               If we were to take many random samples and find the
@@ -180,8 +185,9 @@ ui <- fluidPage(theme = shinytheme("united"),
               strong("then the average of all of the sample
               averages would be, on average, equal to the 
               population mean."),
-              "That is a very tricky sentence, please read through
-              it a few times! We call estimators with this property",
+              "That is a very tricky sentence, I definitely 
+              recommend reading it a few times! 
+              We call estimators with this property",
               strong("unbiased"), "."),
             hr(),
             fluidRow(column(4, offset = 4, align = "center",
@@ -194,7 +200,10 @@ ui <- fluidPage(theme = shinytheme("united"),
             fluidRow(column(12, align = "center",
                             plotOutput("unbiasedPlot",
                                        width = "600px", height = "500px"))),
-            h2("Stratified Random Sampling"),
+            br(),
+            hr(),
+            h1(strong("Stratified Random Sampling"),
+               class = "smallcaps"),
         )))
     ), # End Random Sampling
     #############################################################
