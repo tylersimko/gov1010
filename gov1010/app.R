@@ -9,11 +9,12 @@
 
 library(shiny)
 library(tidyverse)
+library(ggtext)
 library(shinythemes)
 library(patchwork)
 
 # Hypothetical grid of Harvard students
-students <- expand.grid(1:25, 1:25) %>% 
+students <- expand.grid(1:15, 1:15) %>% 
     rename(person = Var1,
            y = Var2) %>% 
     mutate(id = 1:n(),
@@ -32,21 +33,31 @@ student_theme <- theme(plot.title = element_text(hjust = 0.5,
                        legend.title = element_text(size = 15),
                        legend.text = element_text(size = 15))
 
+# argument x doesn't do anything, but required for lapply
+one_sample <- function(x) {
+    rand_sample <- sample(1:nrow(students),
+           size = nrow(students) / 4)
+    round(mean(students[rand_sample,]$courses), 2)
+}
+
+many_samples <- function(n) {
+    res <- lapply(1:n, one_sample)
+    unlist(res)
+}
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("united"),
                 
-        tags$head(
-            tags$link(rel = "stylesheet", 
-                      type = "text/css", 
-                      href = "app.css")
-        ),
+    tags$head(includeCSS("www/app.css")),
                 
     # Application title
-    titlePanel("Gov 1010: Survey Research Methods"),
-    
-    p("Hi! This is an instructional application for 
-    Gov1010: Survey Research Methods"),
-    p("Choose your topic below:"),
+    titlePanel(tags$div(id='app_title',
+                        "Gov 1010: Survey Research Methods")),
+    hr(),
+    h2("Hi! This is an instructional 
+                application for Gov1010: Survey Research Methods.",
+                          "Choose your topic below:"),
+    br(),
                 
     #############################################################
     ## Random Sampling
@@ -70,7 +81,7 @@ ui <- fluidPage(theme = shinytheme("united"),
     fluidRow(column(10, offset = 1,
                     br(),
         wellPanel(
-            h2("Our first random sample"),
+            h1("Our first random sample"),
             p("Big news -- disaster has struck and ",
               em("my.harvard"),
               "is down during course selection for the spring
@@ -98,7 +109,7 @@ ui <- fluidPage(theme = shinytheme("united"),
                          code("25%"), 
                         " of the undergraduate population."),
                 tags$li(strong("Goal:"),
-                        "how many courses has the average Harvard student taken?")
+                        "calculate how many courses the average Harvard student has taken.")
             ),
             
             p("So, what should we do? First, we know that our",
@@ -136,7 +147,7 @@ ui <- fluidPage(theme = shinytheme("united"),
               "So, with a large enough random sample from the
               target population (how large is
               \"large enough\"? Stay tuned.), we can achieve
-,              a valid estimate of the true population statistic.",
+              a valid estimate of the true population statistic.",
               strong("This is the key point -- with SRS, we maintain
               representativeness of our target population.")),
             
@@ -159,7 +170,28 @@ ui <- fluidPage(theme = shinytheme("united"),
                             plotOutput("samplePlot",
                                        width = "600px", height = "600px"))),
             br(),
+            h3("Unbiasedness - random samples converge to the truth"),
+            p("How do we know that a random sample will give us
+              a good estimate of the population mean? 
+              If we were to take many random samples and find the
+              sample average of each one", 
+              strong("then the average of all of the sample
+              averages would be, on average, equal to the 
+              population mean."),
+              "That is a very tricky sentence, please read through
+              it a few times! We call estimators with this property",
+              strong("unbiased"), "."),
             hr(),
+            fluidRow(column(4, offset = 4, align = "center",
+                            numericInput("unbiased_n_samples",
+                                         "Choose a number of samples to take",
+                                         value = 50, 
+                                         min = 1, 
+                                         max = 10000,
+                                         step = 10))),
+            fluidRow(column(12, align = "center",
+                            plotOutput("unbiasedPlot",
+                                       width = "600px", height = "500px"))),
             h2("Stratified Random Sampling"),
         )))
     ), # End Random Sampling
@@ -175,7 +207,7 @@ server <- function(input, output) {
     output$studentPlot <- renderPlot({
     students %>% 
             ggplot(aes(x = person, y = y)) + 
-            geom_point(size = 2, pch = 18) + 
+            geom_point(size = 3, pch = 18) + 
             theme_void() + 
             student_theme +
             labs(title = "Target Population: All Harvard Students")
@@ -184,7 +216,7 @@ server <- function(input, output) {
     output$truthPlot <- renderPlot({
         students %>% 
             ggplot(aes(x = person, y = y)) + 
-            geom_point(size = 2, pch = 18) + 
+            geom_point(size = 3, pch = 18) + 
             geom_text(aes(y = y + 0.5, 
                           label = courses), size = 4) +
             theme_void() + 
@@ -207,7 +239,7 @@ server <- function(input, output) {
         students %>% 
             ggplot(aes(x = person, y = y, 
                        color = id %in% rand_sample)) + 
-            geom_point(size = 2, pch = 18) +
+            geom_point(size = 3, pch = 18) +
             geom_text(aes(y = y + 0.5, 
                           label = courses), 
                       size = 4, show.legend = FALSE) +
@@ -222,6 +254,77 @@ server <- function(input, output) {
                                  "\n", "Estimate:", est_avg)) + 
             guides(color = guide_legend(override.aes = list(size=5)))
     }, height = 600, width = 600)
+    
+    output$unbiasedPlot <- renderPlot({
+        
+        true_avg <- round(mean(students$courses), 2)
+        vals <- many_samples(input$unbiased_n_samples)
+        
+        vals <- vals %>% 
+            as_tibble()
+        
+        p1 <- vals %>% 
+            ggplot(aes(x = value)) + 
+            geom_histogram(binwidth = 0.25) + 
+            geom_vline(xintercept = mean(students$courses), 
+                       col = "#885053", 
+                       lty = "dashed", lwd = 1) +
+            geom_vline(xintercept = mean(vals$value), 
+                       col = "#4D7298", 
+                       lty = "dashed", lwd = 1) +
+            theme_bw() +
+            labs(x = "Sample Average",
+                 y = "Count") + 
+            student_theme
+        
+        p2 <- vals %>% 
+            ggplot(aes(x = value)) + 
+            geom_density() + 
+            geom_vline(xintercept = mean(students$courses), 
+                       col = "#885053", 
+                       lty = "dashed", lwd = 1) +
+            geom_vline(xintercept = mean(vals$value), 
+                       col = "#4D7298", 
+                       lty = "dashed", lwd = 1) +
+            theme_bw() + 
+            labs(x = "Sample Average",
+                 y = "Density") + 
+            student_theme
+        
+        patch <- p1 + p2
+        
+        # https://stackoverflow.com/questions/61642489/colour-in-title-of-patchwork-of-ggplots-using-ggtext
+        patch +
+            plot_annotation(
+                title = paste("True Average: <span style='color:#885053;'><strong>", true_avg, "</strong></span> <br>",
+                        "Avg. of Sample Avgs: <span style='color:#4D7298;'><strong>", round(mean(vals$value), 2)),
+                theme = theme(plot.title = element_markdown(lineheight = 1.1, 
+                                                            size = 25, hjust = 0.5))) &
+                    theme(axis.text = element_text(size = 20),
+                              axis.title = element_markdown(size = 20)) 
+        
+        # p1 + p2 + 
+        #     plot_annotation(caption = paste("True Average:", true_avg,
+        #                                     "\n", "Avg. of Sample Avgs.:", round(mean(vals$value), 2)),
+        #                     title = "Here <span style='color:#953011;'><strong>is a colourful title</strong></span>",
+        #                     theme = theme(plot.title = element_markdown(lineheight = 1.1))) &
+        #     theme(plot.title = element_text(hjust = 0.5, 
+        #                                 vjust = 2,
+        #                                 size = 20),
+        #           axis.text = element_text(size = 15),
+        #           axis.title = element_text(size = 15))
+            # geom_text(aes(y = y + 0.5, 
+            #               label = courses), 
+            #           size = 4, show.legend = FALSE) +
+            # scale_color_manual(name = "Sampled?",
+            #                    values = c("grey", "black")) +
+            # theme_void() + 
+            # student_theme +
+            # theme(legend.position = "top") +
+            # labs(title = "25% Simple Random Sample",
+            #      subtitle = "Target Population: All Harvard Students",
+            # guides(color = guide_legend(override.aes = list(size=5)))
+    }, height = 500, width = 600)
 }
 
 # Run the application 

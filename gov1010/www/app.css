@@ -1,16 +1,33 @@
 
+#app_title {
+  font-size: 50px;
+  text-align :center;
+}
+
 p {
+  font-size: 22px;
+}
+
+.control-label {
   font-size: 18px;
 }
 
 h1 {
+  font-size: 30px;
+}
+
+h2 {
   font-size: 25px;
 }
 
 ul {
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .well {
-  background-color: ;
+}
+
+.navbar-nav li a {
+        font-size: 25px;
+        font-weight: bold;
 }
