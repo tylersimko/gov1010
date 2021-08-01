@@ -52,7 +52,16 @@ many_samples <- function(n) {
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme = shinytheme("united"),
                 
+    tags$head(HTML("<title>Gov 1010</title>")),
     tags$head(includeCSS("www/app.css")),
+    
+    tags$head(
+        tags$link(rel = "shortcut icon", href = "favicon.ico"),
+        tags$link(rel = "apple-touch-icon", sizes = "180x180", href = "favicon.ico"),
+        tags$link(rel = "icon", type = "image/png", sizes = "32x32", href = "/favicon-32x32.png"),
+        tags$link(rel = "icon", type = "image/png", sizes = "16x16", href = "/favicon-16x16.png")
+    ),
+    
     tags$link(
         rel = "stylesheet", 
         href="https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@500&display=swap"
@@ -61,9 +70,11 @@ ui <- fluidPage(theme = shinytheme("united"),
     # Application title
     titlePanel(tags$div(id='app_title',
                         "Gov 1010: Survey Research Methods")),
+    tags$div(id='app_subtitle',
+             "Draft: I'm working on it"),
     hr(),
     h2("Hi! This is an instructional 
-                application for Gov1010: Survey Research Methods.",
+                application for Gov1010: Survey Research Methods at Harvard University.",
                           "Choose your topic below:"),
     br(),
                 

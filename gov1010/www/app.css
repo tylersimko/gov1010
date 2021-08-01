@@ -6,6 +6,13 @@
   font-face: bold;
 }
 
+#app_subtitle {
+  font-size: 35px;
+  text-align :center;
+  font-family: 'Alegreya Sans SC', sans-serif;
+  font-face: bold;
+}
+
 p {
   font-size: 22px;
 }
