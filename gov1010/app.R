@@ -160,6 +160,8 @@ ui <- fluidPage(theme = shinytheme("united"),
               the population mean by simply taking the
               average of the students that we sample."),
             
+            br(),
+            
             fluidRow(column(10, offset = 1, align = "center",
                             actionButton("random_sample", 
                                          "CLICK: Generate a random sample!"))),
@@ -184,11 +186,11 @@ ui <- fluidPage(theme = shinytheme("united"),
             hr(),
             fluidRow(column(4, offset = 4, align = "center",
                             numericInput("unbiased_n_samples",
-                                         "Choose a number of samples to take",
+                                         "Enter a number of samples to take",
                                          value = 50, 
                                          min = 1, 
                                          max = 10000,
-                                         step = 10))),
+                                         step = 9))),
             fluidRow(column(12, align = "center",
                             plotOutput("unbiasedPlot",
                                        width = "600px", height = "500px"))),
@@ -265,7 +267,7 @@ server <- function(input, output) {
         
         p1 <- vals %>% 
             ggplot(aes(x = value)) + 
-            geom_histogram(binwidth = 0.25) + 
+            geom_histogram(binwidth = 0.5, fill = "#C6D8D3") + 
             geom_vline(xintercept = mean(students$courses), 
                        col = "#885053", 
                        lty = "dashed", lwd = 1) +
@@ -275,11 +277,12 @@ server <- function(input, output) {
             theme_bw() +
             labs(x = "Sample Average",
                  y = "Count") + 
-            student_theme
+            student_theme + 
+            xlim(c(true_avg - 5, true_avg + 5))
         
         p2 <- vals %>% 
             ggplot(aes(x = value)) + 
-            geom_density() + 
+            geom_density(fill = "#C6D8D3", color = NA) + 
             geom_vline(xintercept = mean(students$courses), 
                        col = "#885053", 
                        lty = "dashed", lwd = 1) +
@@ -289,7 +292,8 @@ server <- function(input, output) {
             theme_bw() + 
             labs(x = "Sample Average",
                  y = "Density") + 
-            student_theme
+            student_theme + 
+            xlim(c(true_avg - 5, true_avg + 5))
         
         patch <- p1 + p2
         
@@ -300,7 +304,7 @@ server <- function(input, output) {
                         "Avg. of Sample Avgs: <span style='color:#4D7298;'><strong>", round(mean(vals$value), 2)),
                 theme = theme(plot.title = element_markdown(lineheight = 1.1, 
                                                             size = 25, hjust = 0.5))) &
-                    theme(axis.text = element_text(size = 20),
+                    theme(axis.text = element_text(size = 17),
                               axis.title = element_markdown(size = 20)) 
         
         # p1 + p2 + 
