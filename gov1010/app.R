@@ -333,7 +333,8 @@ server <- function(input, output) {
                 title = paste("True Average: <span style='color:#885053;'><strong>", true_avg, "</strong></span> <br>",
                         "Avg. of Sample Avgs: <span style='color:#4D7298;'><strong>", round(mean(vals$value), 2)),
                 theme = theme(plot.title = element_markdown(lineheight = 1.1, 
-                                                            size = 25, hjust = 0.5))) &
+                                                            size = 25, hjust = 0.5),
+                              plot.margin = margin(15, 25, 15, 25))) &
                     theme(axis.text = element_text(size = 17),
                               axis.title = element_markdown(size = 20)) 
         
